@@ -243,11 +243,9 @@ function Whiteboard() {
             <Hand />
           </ToolButton>
           <div className="my-1 h-px w-7 bg-border" />
-          <ToolButton label="Thêm bảng" active={activeTool === "table"} onClick={() => {
+          <ToolButton label="Thêm cột vào bảng" active={activeTool === "table"} onClick={() => {
             setActiveTool("table");
-            const newColId = `data-${Date.now()}`;
-            setColumns((current) => [...current, { id: newColId, label: "Ghi chú" }]);
-            setRows((current) => current.map((row) => ({ ...row, [newColId]: "" })));
+            addColumn();
           }}>
             <Table2 />
           </ToolButton>
@@ -272,6 +270,7 @@ function Whiteboard() {
             <TableWidget
               columns={columns}
               rows={rows}
+              renameColumn={(columnId, label) => setColumns((current) => current.map((column) => column.id === columnId ? { ...column, label } : column))}
               updateCell={updateCell}
               addColumn={addColumn}
               removeColumn={removeColumn}
@@ -369,6 +368,7 @@ function ToolButton({
 function TableWidget({
   columns,
   rows,
+  renameColumn,
   updateCell,
   addColumn,
   removeColumn,
@@ -377,6 +377,7 @@ function TableWidget({
 }: {
   columns: WhiteboardColumn[];
   rows: WhiteboardRow[];
+  renameColumn: (columnId: string, label: string) => void;
   updateCell: (rowIndex: number, columnId: string, value: string) => void;
   addColumn: () => void;
   removeColumn: (columnId: string) => void;
@@ -433,13 +434,7 @@ function TableWidget({
                     <input
                       value={column.label}
                       aria-label={`Tên cột ${index + 1}`}
-                      onChange={(event) => {
-                        const value = event.target.value;
-                        const heading = document.querySelector(`input[aria-label="Tên cột ${index + 1}"]`);
-                        if (heading) heading.setAttribute("data-value", value);
-                        // Column labels are stored independently from cell data.
-                        window.dispatchEvent(new CustomEvent("whiteboard:column-label", { detail: { id: column.id, value } }));
-                      }}
+                      onChange={(event) => renameColumn(column.id, event.target.value)}
                       className="wb-column-name w-full min-w-0 bg-transparent px-1.5 py-1 text-[11px] font-semibold outline-none"
                     />
                     {columns.length > 2 && <button type="button" aria-label={`Xóa cột ${column.label}`} onClick={() => removeColumn(column.id)} className="wb-remove-column hidden size-5 shrink-0 items-center justify-center rounded text-muted-foreground group-hover:flex"><X className="size-3" /></button>}
