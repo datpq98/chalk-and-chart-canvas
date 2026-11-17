@@ -28,3 +28,5 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+Keep whiteboard interaction state in the home route and chart-data derivation in pure helpers; the first version is session-only because persistence was not requested.
